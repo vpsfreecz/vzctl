@@ -17,26 +17,44 @@
 #
 #
 # Deletes IP address from a container running Slackware.
+# Note that this script requires /etc/rc.d/rc.vz to be present.
 
-IFCFG=/etc/rc.d/rc.inet1.conf
+VENET_DEV=venet0
+IFCFG=/etc/rc.d/rc.vz
+IP=/sbin/ip
+
+function clear_ip()
+{
+	local cfg="${IFCFG}.$1"
+	local ip="$2"
+	
+	grep -v "$ip/" "$cfg" > "${cfg}.new"
+	mv "${cfg}.new" "${cfg}"
+
+}
 
 function del_ip()
 {
+	if [ ! -f "$IFCFG" ] ; then
+		echo "Unable to del ip: '$IFCFG' does not exist"
+		exit 1
+	fi
+
 	local ipm
 
-	[ -f ${IFCFG}  ] || return 0
-
 	if [ "x${IPDELALL}" = "xyes" ]; then
-		/sbin/ifconfig venet0 down
-		mv -f ${IFCFG} ${IFCFG}.bak
+		$IFCFG stop
 		return 0
 	fi
 
 	for ipm in ${IP_ADDR}; do
-		ip_conv $ipm
-		if grep -wq "${_IP}" ${IFCFG} 2>/dev/null; then
-			/etc/rc.d/rc.inet1 stop
-			break
+		clear_ip "start" "$ipm"
+		clear_ip "stop" "$ipm"
+		
+		if [ "${ipm#*:}" = "${ipm}" ] ; then
+			$IP addr del $ipm/32 dev $VENET_DEV
+		else
+			$IP -6 addr del $ipm/128 dev $VENET_DEV
 		fi
 	done
 }
