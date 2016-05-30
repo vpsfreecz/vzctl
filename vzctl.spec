@@ -12,7 +12,7 @@
 Summary: OpenVZ containers control utility
 Name: vzctl
 Version: 4.9.4
-%define rel 1
+%define rel 91337
 Release: %{rel}%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
