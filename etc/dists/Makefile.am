@@ -66,6 +66,10 @@ debian:
 	$(INSTALL_DATA) $(srcdir)/debian.conf \
 		$(DESTDIR)$(distconfdir)/debian.conf
 
+devuan:
+	$(INSTALL_DATA) $(srcdir)/devuan.conf \
+		$(DESTDIR)$(distconfdir)/devuan.conf
+
 fedora:
 	$(INSTALL_DATA) $(srcdir)/fedora-core.conf \
 		$(DESTDIR)$(distconfdir)/fedora-core.conf
@@ -140,6 +144,7 @@ install-data-hook: alpine \
                    arch \
                    centos \
                    debian \
+                   devuan \
                    fedora \
                    funtoo \
                    gentoo \
