@@ -17,22 +17,13 @@
 #
 #
 # Adds IP address in a container running Slackware.
-# Slackware does not support IP aliases so multiple IP addresses not allowed
+# Note that this script requires /etc/rc.d/rc.vz to be present.
 
 VENET_DEV=venet0
 IFCFG_DIR=/etc/rc.d
-IFCFG=${IFCFG_DIR}/rc.inet1.conf
+IFCFG=${IFCFG_DIR}/rc.vz
 HOSTFILE=/etc/hosts
-
-function fix_rcinet1()
-{
-	local file="${IFCFG_DIR}/rc.inet1"
-
-	[ -f "${file}" ] || return 0
-	cp -fp ${file} ${file}.$$ || error "Can't copy file ${file}" ${VZ_FS_NO_DISK_SPACE}
-	sed -e 's/eth/venet/g' -e 's/^[\ \t]*\/sbin\/route add default gw .*/\t\/sbin\/route add -net '${FAKEGATEWAYNET}'\/24 dev venet0; \/sbin\/route add default gw \${GATEWAY} dev venet0/' < ${file} > ${file}.$$ && mv -f ${file}.$$ ${file}
-	rm -f ${file}.$$ >/dev/null 2>&1
-}
+IP=/sbin/ip
 
 function setup_network()
 {
@@ -41,44 +32,53 @@ function setup_network()
 	if [ ! -f ${HOSTFILE} ]; then
 		echo "127.0.0.1 localhost.localdomain localhost" > $HOSTFILE
 	fi
-	fix_rcinet1
-}
 
-function create_config()
-{
-	local ip=${1}
-	local netmask=${2}
+	echo "$IP link set up dev $VENET_DEV" > "${IFCFG}.start"
+	echo "$IP route add default dev $VENET_DEV" >> "${IFCFG}.start"
+	echo "$IP -6 route add default dev $VENET_DEV" >> "${IFCFG}.start"
 
-	echo "# /etc/rc.d/rc.inet1.conf
-#
-# This file contains the configuration settings for network interfaces.
-
-IPADDR[0]=\"${ip}\"
-NETMASK[0]=\"${netmask}\"
-
-# Default gateway IP address:
-GATEWAY=\"${FAKEGATEWAY}\"
-" > ${IFCFG}
+	echo "$IP link set down dev $VENET_DEV" > "${IFCFG}.stop"
 }
 
 function add_ip()
 {
+	if [ ! -f "$IFCFG" ] ; then
+		echo "Unable to add ip: '$IFCFG' does not exist"
+		exit 1
+	fi
+
 	# In case we are starting CT
 	if [ "x${VE_STATE}" = "xstarting" ]; then
 		setup_network
 	fi
+	
 	local ipm
 	for ipm in ${IP_ADDR}; do
-		ip_conv $ipm
-		if [ "${IPDELALL}" != "yes" ]; then
-			if grep -qw "${_IP}" ${IFCFG} 2>/dev/null; then
-				break
+		local cmd
+		
+		if [ "${ipm#*:}" = "${ipm}" ] ; then
+			cmd="$IP addr add $ipm/32 dev $VENET_DEV"
+			echo "$cmd" >> "${IFCFG}.start"
+			echo "$IP addr del $ipm/32 dev $VENET_DEV" >> "${IFCFG}.stop"
+		else
+			cmd="$IP -6 addr add $ipm/128 dev $VENET_DEV"
+			echo "$cmd" >> "${IFCFG}.start"
+			echo "$IP -6 addr del $ipm/128 dev $VENET_DEV" >> "${IFCFG}.stop"
+		fi
+		
+		if [ "x${VE_STATE}" != "xstarting" ] ; then
+			$cmd
+			
+			if [ "${ipm#*:}" = "${ipm}" ] ; then
+				if ! ($IP route list | grep -q "default dev $VENET_DEV") ; then
+					$IP route add default dev $VENET_DEV
+				fi
+			else
+				if ! ($IP -6 route list | grep -q "default dev $VENET_DEV") ; then
+					$IP -6 route add default dev $VENET_DEV
+				fi
 			fi
 		fi
-		${IFCFG_DIR}/rc.inet1 stop >/dev/null 2>&1
-		create_config ${_IP} ${_NETMASK}
-		${IFCFG_DIR}/rc.inet1 start >/dev/null 2>&1
-		break
 	done
 }
 
