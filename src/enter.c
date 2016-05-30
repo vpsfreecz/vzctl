@@ -103,13 +103,13 @@ static void raw_on(void)
 {
 	struct termios tios;
 
-	if (tcgetattr(0, &tios) == -1) {
+	if (tcgetattr(1, &tios) == -1) {
 		logger(-1, errno, "Unable to get term attr");
 		return;
 	}
 	memcpy(&s_tios, &tios, sizeof(struct termios));
 	cfmakeraw(&tios);
-	if (tcsetattr(0, TCSADRAIN, &tios) == -1)
+	if (tcsetattr(1, TCSADRAIN, &tios) == -1)
 		logger(-1, errno, "Unable to set raw mode");
 }
 
@@ -412,7 +412,7 @@ static void console_winch(int sig)
 {
 	struct winsize ws;
 
-	if (ioctl(0, TIOCGWINSZ, &ws))
+	if (ioctl(1, TIOCGWINSZ, &ws))
 		warn("Unable to get window size");
 	else {
 		if (sig == 0) {	/* just attached */
