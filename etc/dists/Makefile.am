@@ -139,6 +139,10 @@ ubuntu:
 	$(INSTALL_DATA) $(srcdir)/debian.conf \
 		$(DESTDIR)$(distconfdir)/ubuntu.conf
 
+void:
+	$(INSTALL_DATA) $(srcdir)/void.conf \
+		$(DESTDIR)$(distconfdir)/void.conf
+
 install-data-hook: alpine \
                    altlinux \
                    arch \
@@ -155,4 +159,5 @@ install-data-hook: alpine \
                    scientific \
                    slack \
                    suse \
-                   ubuntu
+                   ubuntu \
+                   void
