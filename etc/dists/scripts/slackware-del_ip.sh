@@ -17,10 +17,10 @@
 #
 #
 # Deletes IP address from a container running Slackware.
-# Note that this script requires /etc/rc.d/rc.vz to be present.
+# Note that this script requires /etc/rc.d/rc.venet to be present.
 
 VENET_DEV=venet0
-IFCFG=/etc/rc.d/rc.vz
+IFCFG=/etc/rc.d/rc.venet
 IP=/sbin/ip
 
 function clear_ip()

@@ -17,11 +17,11 @@
 #
 #
 # Adds IP address in a container running Slackware.
-# Note that this script requires /etc/rc.d/rc.vz to be present.
+# Note that this script requires /etc/rc.d/rc.venet to be present.
 
 VENET_DEV=venet0
 IFCFG_DIR=/etc/rc.d
-IFCFG=${IFCFG_DIR}/rc.vz
+IFCFG=${IFCFG_DIR}/rc.venet
 HOSTFILE=/etc/hosts
 IP=/sbin/ip
 
