@@ -143,6 +143,10 @@ void:
 	$(INSTALL_DATA) $(srcdir)/void.conf \
 		$(DESTDIR)$(distconfdir)/void.conf
 
+nixos:
+	$(INSTALL_DATA) $(srcdir)/nixos.conf \
+		$(DESTDIR)$(distconfdir)/nixos.conf
+
 install-data-hook: alpine \
                    altlinux \
                    arch \
@@ -160,4 +164,5 @@ install-data-hook: alpine \
                    slack \
                    suse \
                    ubuntu \
-                   void
+                   void \
+                   nixos
