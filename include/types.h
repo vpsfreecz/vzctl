@@ -55,7 +55,7 @@ typedef unsigned envid_t;
 
 /* Default environment variable PATH */
 #define DEF_PATH	"/usr/local/sbin:/usr/local/bin:" \
-			"/usr/sbin:/usr/bin:/sbin:/bin"
+			"/usr/sbin:/usr/bin:/sbin:/bin:/run/current-system/sw/bin"
 #define ENV_PATH	"PATH=" DEF_PATH
 
 /* Defaults for checkpointing */
