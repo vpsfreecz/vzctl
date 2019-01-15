@@ -11,7 +11,7 @@
 
 Summary: OpenVZ containers control utility
 Name: vzctl
-Version: 4.11.1
+Version: 4.12
 %define rel 1
 Release: %{rel}%{?dist}
 License: GPLv2+
@@ -236,7 +236,6 @@ OpenVZ containers control utility core package
 %dir %{_vzdir}/dump
 %dir %{_vzdir}/private
 %dir %{_vzdir}/root
-%dir %{_vzdir}/template/cache
 %dir %{_sharedstatedir}/vzctl/veip
 %dir %{_sharedstatedir}/vzctl/vzreboot
 %dir %{_sharedstatedir}/vzctl/vepid
